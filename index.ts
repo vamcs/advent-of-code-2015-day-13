@@ -10,6 +10,7 @@ type People = {
 type HappinessChange = People;
 
 export function read(path: string) {
+  console.log("[INFO] Reading file and parsing content...");
   const data = fs.readFileSync(path, "utf-8");
 
   if (!data) {
@@ -143,20 +144,20 @@ function buildPath(
       );
 }
 
-export function calculateTotalChange(path: string) {
-  console.log("Starting.");
-  console.log("Path received", path);
+export function calculateTotalChange(inputFilePath: string) {
+  console.log("[INFO] Starting.");
+  console.log("[DEBUG] File path received", inputFilePath);
 
-  if (!path) {
+  if (!inputFilePath) {
     return;
   }
 
-  const data = read(path);
+  const data = read(inputFilePath);
   const people = { ...data };
   const happinessChange: HappinessChange = {};
 
+  // Calculate the happiness change between each two people
   Object.keys(people).forEach((name) => {
-    // Calculate the happiness change between each two people
     Object.keys(people[name]).forEach((to) => {
       if (!happinessChange[name]) {
         happinessChange[name] = {};
@@ -166,13 +167,16 @@ export function calculateTotalChange(path: string) {
     });
   });
 
-  console.log("Happiness change", happinessChange);
+  console.log("[DEBUG] Happiness change between each two people");
+  console.log(happinessChange);
 
   const totalAmountOfPeople = Object.keys(happinessChange).length;
-  console.log("Total amount of people", totalAmountOfPeople);
+  console.log("[DEBUG] Total amount of people", totalAmountOfPeople);
+
   // From each person, calculate how much the total happiness change would be by going around the table
   let highestHappinessChange = Number.NEGATIVE_INFINITY;
   let chosenPath: string = "";
+  console.log("[INFO] Possible seating arrangements");
   Object.keys(happinessChange).forEach((person) => {
     const seatedPeople = [person];
 
@@ -186,7 +190,7 @@ export function calculateTotalChange(path: string) {
     );
 
     console.log(path);
-    console.log(total);
+    console.log("Happiness change:", total, "\n");
 
     if (total > highestHappinessChange) {
       highestHappinessChange = total;
@@ -194,32 +198,10 @@ export function calculateTotalChange(path: string) {
     }
   });
 
+  console.log("Final result:");
   console.log("Highest happiness change:", highestHappinessChange);
-  console.log("Chosen path:");
+  console.log("Chosen seating arrangement:");
   console.log(chosenPath);
-
-  // Find the arrangement with the highest happiness change
-
-  // Get the two highest happiness changes from each person without repetitions,
-  // then sum everything to get the total happiness change.
-  // const totalHappinessChange = Object.keys(happinessChange)
-  //   .map((name) => {
-  //     const highest = getMax(happinessChange[name]);
-
-  //     const connectionsCopy = { ...happinessChange[name] };
-  //     delete connectionsCopy[highest.name];
-
-  //     const secondHighest = getMax(connectionsCopy);
-
-  //     console.log(`Person ${name}`);
-  //     console.log(`Highest`, highest);
-  //     console.log(`Second highest`, secondHighest);
-
-  //     return highest.value + secondHighest.value;
-  //   })
-  //   .reduce((acc, current) => acc + current, 0);
-
-  // console.log(`Total happiness change: ${totalHappinessChange}`);
 }
 
 calculateTotalChange(process.argv[2]);
